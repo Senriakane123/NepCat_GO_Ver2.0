@@ -50,6 +50,7 @@ func MessageRrocess(message MSGModel.ResMessage) {
 
 		break
 	}
+	//ReplyNormalGroupMsg(message, "不管你是谁如果看到这条信息请让制作组滚去敲代码")
 
 	return
 
@@ -61,8 +62,8 @@ func ChangeReplayMode(rawmsg string) bool {
 	}
 
 	allowedModes := map[string]bool{
-		"全回复":     true,
-		"部分回复":   true,
+		"全回复":   true,
+		"部分回复":  true,
 		"管理员回复": true,
 		"开发者回复": true,
 	}

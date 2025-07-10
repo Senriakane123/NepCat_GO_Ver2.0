@@ -22,6 +22,12 @@ var GroupManageServerMenu = []string{
 	"例如发送'@sachiko踢人',则会把sachiko踢出群聊",
 }
 
+var PicServerMenu = []string{
+	"1 随机涩图 （请求格式为'@Bot随机涩图-2-seabed'）",
+	"2 开启R18模式（请求格式为‘@Bot开启R18模式’）",
+	"3 关闭R18模式（请求格式为‘@Bot关闭R18模式’）",
+}
+
 func GetServerList() []string {
 	return serverMenu
 }
