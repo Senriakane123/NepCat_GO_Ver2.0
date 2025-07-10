@@ -2,6 +2,7 @@ package ConfigManage
 
 import (
 	"fmt"
+	"github.com/jander/golog/logger"
 	"gopkg.in/yaml.v2"
 	"os"
 )
@@ -72,6 +73,7 @@ func ConfigInit(ConfigFileName string) error {
 	if err = yaml.Unmarshal(file, &webconf); err != nil {
 		return fmt.Errorf("failed to unmarshal config: %v", err)
 	}
+	logger.Info("加载本地yaml配置文件成功:", webconf)
 
 	return nil
 }
