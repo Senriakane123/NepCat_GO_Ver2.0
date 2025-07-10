@@ -6,16 +6,29 @@ import (
 	"NepCat_GO/NepCatInit/Nepcat_ws_init"
 	"encoding/json"
 	"fmt"
+	"github.com/jander/golog/logger"
 )
 
 func MessageHandler() {
 
-	for msg := range *Nepcat_ws_init.NepcatWS.GetChannel() {
+	ws := Nepcat_ws_init.NepcatWS
+	if ws == nil {
+		fmt.Println("❌ WebSocket 未初始化，无法处理消息")
+		return
+	}
+
+	ch := ws.GetChannel()
+	if ch == nil {
+		fmt.Println("❌ WebSocket Channel 未初始化")
+		return
+	}
+
+	for msg := range *ch {
 		var resmsg MSGModel.ResMessage
 		err := json.Unmarshal([]byte(msg), &resmsg)
 		if err != nil {
 			fmt.Println("解析 JSON 失败:", err)
-			return
+			continue
 		}
 
 		switch resmsg.PostType {
@@ -26,16 +39,14 @@ func MessageHandler() {
 		default:
 			fmt.Println("未知消息类型:", resmsg.PostType)
 		}
-		//return
 	}
-
 }
 
 func handleMetaEvent(msg MSGModel.ResMessage) {
 	if msg.MetaEventType == "heartbeat" {
 		fmt.Println("收到心跳包")
 	} else if msg.MetaEventType == "lifecycle" {
-		fmt.Println("机器人上线")
+		logger.Info("机器人上线")
 	}
 }
 
@@ -43,8 +54,9 @@ func handleChatMessage(msg MSGModel.ResMessage) {
 	fmt.Printf("收到来自用户 %d 的消息: %s\n", msg.UserID, msg.RawMessage)
 	switch msg.MessageType {
 	case "group":
+		logger.Info("开启携程进行消息处理")
+		logger.Info("处理消息的GroupID为：", msg.GroupID)
 		go MsgProcess.MessageRrocess(msg)
-		fmt.Println("暂定调用http回复")
 	case "private":
 		//DS链接
 		//go func() {

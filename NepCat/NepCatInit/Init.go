@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 )
 
 type ReqHandler func(ReqMessage string, Resp map[string]interface{})
@@ -23,7 +24,7 @@ func HttpReqInit(ReqType string, handler ReqHandler) {
 }
 
 func HandleMessage(ReqMessage string, Resp map[string]interface{}) {
-	url := "http://" + ConfigManage.GetWebConfig().NepcatInfo.LocalAddress + ":" + string(ConfigManage.GetWebConfig().NepcatInfo.Port) + "/" + ReqMessage
+	url := "http://" + ConfigManage.GetWebConfig().NepcatInfo.LocalAddress + ":" + strconv.Itoa(ConfigManage.GetWebConfig().NepcatInfo.Port) + "/" + ReqMessage
 	//url := "http://127.0.0.1:3000/" + ReqMessage
 	// 将 Go 的 map 转换为 JSON
 	jsonData, err := json.Marshal(Resp)

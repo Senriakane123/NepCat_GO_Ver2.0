@@ -6,6 +6,9 @@ import (
 	"os"
 )
 
+const ConfigFilePath = "ConfigModule/config.yaml"
+const LogFilePath = "NepCat_RunningLog/Running.log"
+
 type WebConfig struct {
 	// 数据库配置
 	Database struct {
@@ -47,6 +50,9 @@ type WebConfig struct {
 	Mode struct {
 		ReplyMode string `yaml:"replymode"`
 	} `yaml:"mode"`
+	AdminUser struct {
+		Acount []string `yaml:"acount"`
+	}
 }
 
 var webconf WebConfig
@@ -65,6 +71,22 @@ func ConfigInit(ConfigFileName string) error {
 	//yaml.Decoder{}
 	if err = yaml.Unmarshal(file, &webconf); err != nil {
 		return fmt.Errorf("failed to unmarshal config: %v", err)
+	}
+
+	return nil
+}
+
+func SaveConfig(configFile string) error {
+	// 将当前配置结构体序列化为 YAML
+	data, err := yaml.Marshal(&webconf)
+	if err != nil {
+		return fmt.Errorf("failed to marshal config to YAML: %v", err)
+	}
+
+	// 写入文件
+	err = os.WriteFile(configFile, data, 0644)
+	if err != nil {
+		return fmt.Errorf("failed to write config file: %v", err)
 	}
 
 	return nil

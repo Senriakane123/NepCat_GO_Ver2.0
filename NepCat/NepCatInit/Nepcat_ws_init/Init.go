@@ -7,6 +7,8 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
+	"strconv"
+	"time"
 )
 
 type NepcatWebSocket struct {
@@ -16,60 +18,64 @@ type NepcatWebSocket struct {
 
 var NepcatWS *NepcatWebSocket
 
-//func Init() {
-//	if NepcatWS == nil {
-//		NepcatWS.WebSocketInit()
-//	}
-//}
-
-// WebSocketInit 函数用于初始化 WebSocket 连接
-func WebSocketInit(Scheme, host string, port int, path, raw string) {
-	NepcatWS.messageChannel = make(chan string, 100)
-
-	// 创建 WebSocket 服务器 URL
-	serverURL := url.URL{
-		Scheme:   Scheme,
-		Host:     host + string(port),
-		Path:     path,
-		RawQuery: raw,
+func WebChannelInit() {
+	NepcatWS = &NepcatWebSocket{
+		messageChannel: make(chan string, 100),
 	}
-
-	var err error
-	// 使用默认的 WebSocket Dialer 连接服务器
-	NepcatWS.conn, _, err = websocket.DefaultDialer.Dial(serverURL.String(), nil)
-	if err != nil {
-		// 如果连接失败，打印错误信息并退出程序
-		log.Fatalf("❌ 连接 WebSocket 失败: %v", err)
-	}
-	fmt.Println("✅ 成功连接到 WebSocket 服务器")
-
-	// 捕获 Ctrl+C 退出
-	interrupt := make(chan os.Signal, 1)
-	signal.Notify(interrupt, os.Interrupt)
-
-	// 启动一个 goroutine，用于读取服务器发送的消息
-	go func() {
-		for {
-			_, message, err := NepcatWS.conn.ReadMessage()
-			if err != nil {
-				// 如果读取消息失败，打印错误信息并退出 goroutine
-				log.Println("❌ 读取消息失败:", err)
-				return
-			}
-			// 打印收到的消息
-			fmt.Println("📩 收到消息:", string(message))
-			// 将收到的消息发送到消息通道
-			NepcatWS.messageChannel <- string(message)
-			//go MessageHandler()
-		}
-	}()
-
-	// 等待 Ctrl+C 退出
-	<-interrupt
-	fmt.Println("⏳ 关闭 WebSocket 连接...")
 }
 
-// GetChannel 返回消息通道
+// WebSocketInit 会持续尝试连接直到成功
+func WebSocketInit(Scheme, host string, port int, path, raw string) {
+	for {
+		fmt.Println("🔄 尝试连接 WebSocket...")
+
+		// 构建 WebSocket URL
+		serverURL := url.URL{
+			Scheme:   Scheme,
+			Host:     host + ":" + strconv.Itoa(port),
+			Path:     path,
+			RawQuery: raw,
+		}
+
+		// 建立连接
+		conn, _, err := websocket.DefaultDialer.Dial(serverURL.String(), nil)
+		if err != nil {
+			log.Printf("❌ 连接失败: %v，5 秒后重试...\n", err)
+			time.Sleep(5 * time.Second)
+			continue
+		}
+
+		// 成功建立连接
+		fmt.Println("✅ 成功连接到 WebSocket 服务器:", serverURL.String())
+
+		// 初始化全局实例
+		NepcatWS.conn = conn
+
+		// 捕获 Ctrl+C 退出
+		interrupt := make(chan os.Signal, 1)
+		signal.Notify(interrupt, os.Interrupt)
+
+		// 启动接收协程
+		go func() {
+			for {
+				_, message, err := NepcatWS.conn.ReadMessage()
+				if err != nil {
+					log.Println("❌ WebSocket 连接中断，尝试重连:", err)
+					break // 跳出接收循环，重新进入连接流程
+				}
+				NepcatWS.messageChannel <- string(message)
+			}
+		}()
+
+		// 主线程等待中断信号
+		<-interrupt
+		log.Println("⏳ 收到中断信号，准备关闭 WebSocket")
+		NepcatWS.conn.Close()
+		return
+	}
+}
+
+// 获取消息通道
 func (ws *NepcatWebSocket) GetChannel() *chan string {
 	return &ws.messageChannel
 }

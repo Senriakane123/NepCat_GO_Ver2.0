@@ -18,7 +18,7 @@ server:
   rpcserver: 192.168.8.20:50000
 
 nepcatinfo:
-  localaddress: "127.0.0.1:3000"
+  localaddress: "127.0.0.1@"
   port: 3000
 
 websocket:
@@ -29,4 +29,9 @@ websocket:
   rawquery: "access_token="
 mode:
   replymode: "全回复"
+adminuser:
+  acount:
+    - "admin"
+    - "root"
+    - "cx"
 #  包含全回复，部分回复，管理员回复，开发者回复四种模式
