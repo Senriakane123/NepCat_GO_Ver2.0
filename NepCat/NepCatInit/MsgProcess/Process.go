@@ -3,7 +3,6 @@ package MsgProcess
 import (
 	ConfigManage "NepCat_GO/ConfigModule"
 	"NepCat_GO/NepCatInit/MSGModel"
-	"NepCat_GO/NepCatInit/Menulist"
 	"NepCat_GO/Tool"
 	"fmt"
 	"strconv"
@@ -14,13 +13,12 @@ func MessageRrocess(message MSGModel.ResMessage) {
 	//获取原消息包含的所有QQ号
 	for {
 		_, QQNumberList := Tool.ListQQNumber(message.RawMessage)
-		BContainBotQQ := true
+		BContainBotQQ := false
 		//检查是否包含原机器人QQ
 		for _, n := range QQNumberList {
 			if n == strconv.Itoa(int(message.SelfID)) {
 				BContainBotQQ = true
-			} else {
-				BContainBotQQ = false
+				break
 			}
 		}
 		fmt.Println(BContainBotQQ)
@@ -39,6 +37,18 @@ func MessageRrocess(message MSGModel.ResMessage) {
 				if strings.Contains(message.RawMessage, "菜单") {
 					ReplyNormalGroupMsg(message, MenuReplyMsgBuild(strconv.Itoa(int(message.SelfID))))
 				}
+				//获取服务器状态
+				if strings.Contains(message.RawMessage, "服务器状态") {
+					ReplyNormalGroupMsg(message, ServerStatusBuild(strconv.Itoa(int(message.SelfID))))
+				}
+
+				if strings.Contains(message.RawMessage, "随机涩图") {
+					ReplyNormalGroupMsg(message, PicReplyMsgBuild(strconv.Itoa(int(message.SelfID))))
+				}
+
+				if strings.Contains(message.RawMessage, "群管理") {
+					ReplyNormalGroupMsg(message, GroupManageReplyMsgBuild(strconv.Itoa(int(message.SelfID))))
+				}
 			} else {
 
 			}
@@ -54,29 +64,4 @@ func MessageRrocess(message MSGModel.ResMessage) {
 
 	return
 
-}
-
-func ChangeReplayMode(rawmsg string) bool {
-	if !strings.Contains(rawmsg, "切换回复模式") {
-		return false
-	}
-
-	allowedModes := map[string]bool{
-		"全回复":   true,
-		"部分回复":  true,
-		"管理员回复": true,
-		"开发者回复": true,
-	}
-
-	for msg, _ := range allowedModes {
-		if strings.Contains(rawmsg, msg) {
-			ConfigManage.GetWebConfig().Mode.ReplyMode = msg
-			return true
-		}
-	}
-	return false
-}
-
-func MenuReplyMsgBuild(qqnum string) string {
-	return Tool.BuildAtQQString(qqnum) + Tool.BuildReplyMessage(Menulist.GetServerList())
 }

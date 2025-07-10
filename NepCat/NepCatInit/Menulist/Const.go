@@ -9,6 +9,7 @@ var serverMenu = []string{
 	"3 更换机器人头像（需要向机器人所有者获取管理权限，目前是测试开发阶段请求格式为'@Bot修改头像-图片url'） ",
 	"4 宠物系统（测试开发阶段）",
 	"5 随机音乐推荐（'@Bot随机音乐推荐'，还在完善开发中）",
+	"6 获取当前服务器运行状态(发送'服务器状态'即可)",
 }
 
 var GroupManageServerMenu = []string{
@@ -23,7 +24,8 @@ var GroupManageServerMenu = []string{
 }
 
 var PicServerMenu = []string{
-	"1 随机涩图 （请求格式为'@Bot随机涩图-2-seabed'）",
+	"1 随机涩图 （请求格式为'@Bot随机涩图-图片数量-图片标签'）",
+	"例如发送'@Bot随机涩图-5-萝莉'，则会返回5张萝莉的涩图",
 	"2 开启R18模式（请求格式为‘@Bot开启R18模式’）",
 	"3 关闭R18模式（请求格式为‘@Bot关闭R18模式’）",
 }
@@ -34,4 +36,8 @@ func GetServerList() []string {
 
 func GetGroupServerList() []string {
 	return GroupManageServerMenu
+}
+
+func GetPicServerList() []string {
+	return PicServerMenu
 }
