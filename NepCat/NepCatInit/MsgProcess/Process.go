@@ -10,6 +10,33 @@ import (
 	"strings"
 )
 
+var MenuCommand = map[string]func(MSGModel.ResMessage){}
+
+func Init() {
+	MenuCommand = map[string]func(MSGModel.ResMessage){
+		"菜单": func(msg MSGModel.ResMessage) {
+			reply := Handle.MenuReplyMsgBuild(strconv.Itoa(int(msg.SelfID)))
+			Handle.ReplyNormalGroupMsg(msg, reply)
+		},
+		"服务器状态": func(msg MSGModel.ResMessage) {
+			reply := Handle.ServerStatusBuild(strconv.Itoa(int(msg.SelfID)))
+			Handle.ReplyNormalGroupMsg(msg, reply)
+		},
+		"涩图管理": func(msg MSGModel.ResMessage) {
+			reply := Handle.PicReplyMsgBuild(strconv.Itoa(int(msg.SelfID)))
+			Handle.ReplyNormalGroupMsg(msg, reply)
+		},
+		"群管理": func(msg MSGModel.ResMessage) {
+			reply := Handle.GroupManageReplyMsgBuild(strconv.Itoa(int(msg.SelfID)))
+			Handle.ReplyNormalGroupMsg(msg, reply)
+		},
+		"切换回复模式": func(msg MSGModel.ResMessage) {
+			Handle.ChangeReplayMode(msg.RawMessage)
+			Handle.ReplyNormalGroupMsg(msg, "切换回复模式成功")
+		},
+	}
+}
+
 func MessageRrocess(message MSGModel.ResMessage) {
 	//获取原消息包含的所有QQ号
 	for {
@@ -37,31 +64,11 @@ func MessageRrocess(message MSGModel.ResMessage) {
 
 			//判断是否包含@机器请求的两种情况
 			if BContainBotQQ {
-				//切换内存回复模式
-				if strings.Contains(message.RawMessage, "切换回复模式") {
-					Handle.ChangeReplayMode(message.RawMessage)
-					Handle.ReplyNormalGroupMsg(message, "切换回复模式成功")
-					break
-				}
-				//判断是否包含菜单请求
-				if strings.Contains(message.RawMessage, "菜单") {
-					Handle.ReplyNormalGroupMsg(message, Handle.MenuReplyMsgBuild(strconv.Itoa(int(message.SelfID))))
-					break
-				}
-				//获取服务器状态
-				if strings.Contains(message.RawMessage, "服务器状态") {
-					Handle.ReplyNormalGroupMsg(message, Handle.ServerStatusBuild(strconv.Itoa(int(message.SelfID))))
-					break
-				}
-
-				if strings.Contains(message.RawMessage, "涩图管理") {
-					Handle.ReplyNormalGroupMsg(message, Handle.PicReplyMsgBuild(strconv.Itoa(int(message.SelfID))))
-					break
-				}
-
-				if strings.Contains(message.RawMessage, "群管理") {
-					Handle.ReplyNormalGroupMsg(message, Handle.GroupManageReplyMsgBuild(strconv.Itoa(int(message.SelfID))))
-					break
+				for cmd, handler := range MenuCommand {
+					if strings.Contains(message.RawMessage, cmd) {
+						handler(message)
+						break
+					}
 				}
 
 			} else {

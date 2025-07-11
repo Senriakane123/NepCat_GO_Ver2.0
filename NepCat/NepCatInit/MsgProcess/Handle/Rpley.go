@@ -5,11 +5,11 @@ import (
 	"NepCat_GO/NepCatInit/MSGModel"
 )
 
-var RespApiMap = make(map[string]func(MSGModel.ResMessage, string))
-
-func RespApiInit() {
-	RespApiMap[NepCatInit.SEND_GROUP_MSG] = ReplyNormalGroupMsg
-}
+//var RespApiMap = make(map[string]func(MSGModel.ResMessage, string))
+//
+//func RespApiInit() {
+//	RespApiMap[NepCatInit.SEND_GROUP_MSG] = ReplyNormalGroupMsg
+//}
 
 func ReplyNormalGroupMsg(rawmsg MSGModel.ResMessage, RespMsg string) {
 	// 构造返回数据

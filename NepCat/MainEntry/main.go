@@ -4,7 +4,7 @@ import (
 	ConfigManage "NepCat_GO/ConfigModule"
 	"NepCat_GO/NepCatInit"
 	"NepCat_GO/NepCatInit/Message_Handle"
-	"NepCat_GO/NepCatInit/MsgProcess/Handle"
+	"NepCat_GO/NepCatInit/MsgProcess"
 	"NepCat_GO/NepCatInit/Nepcat_ws_init"
 	db "github.com/gopublic/GormModule/DBControl/DatabaseControl"
 	"github.com/jander/golog/logger"
@@ -33,7 +33,7 @@ func main() {
 	}
 
 	logger.Info("------------------------------------------------------------------------Nepcat的api接口初始化------------------------------------------------------------------------")
-	Handle.RespApiInit()
+	MsgProcess.Init()
 	NepCatInit.InitAllApis()
 	// WebSocket + 消息处理线程
 
