@@ -33,7 +33,7 @@ func main() {
 	}
 
 	logger.Info("------------------------------------------------------------------------Nepcat的api接口初始化------------------------------------------------------------------------")
-	MsgProcess.Init()
+	MsgProcess.MenuInit()
 	NepCatInit.InitAllApis()
 	// WebSocket + 消息处理线程
 

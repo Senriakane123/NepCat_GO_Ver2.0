@@ -8,14 +8,13 @@ import (
 	"strings"
 )
 
-func GroupManage(rawmsg MSGModel.ResMessage) (isreply bool) {
+func GroupManage(rawmsg MSGModel.ResMessage) {
 	fmt.Println("原始消息：", rawmsg)
 
 	var action string
 	var value int
 	var qq string
 	var hasValue bool
-	isreply = false
 
 	// 1️⃣ 提取 QQ 号
 	qqRe := regexp.MustCompile(`qq=(\d+)`)
@@ -60,19 +59,19 @@ func GroupManage(rawmsg MSGModel.ResMessage) (isreply bool) {
 			fmt.Println("⚠️ 禁言缺少时间参数")
 		}
 		ReplyBanMsg(rawmsg.GroupID, int64(qqInt), int64(value*60))
-		isreply = true
+
 	case "踢人":
 		fmt.Printf("👉 执行踢出用户 %s\n", qq)
 		ReplyKickMsg(rawmsg.GroupID, int64(qqInt), false)
-		isreply = true
+
 	case "全体禁言":
 		fmt.Println("👉 执行全体禁言")
 		ReplyGroupBanMsg(rawmsg.GroupID, true)
-		isreply = true
+
 	case "解除全体禁言":
 		fmt.Println("👉 执行解除全体禁言")
 		ReplyGroupBanMsg(rawmsg.GroupID, false)
-		isreply = true
+
 	default:
 		fmt.Println("⚠️ 未知指令:", action)
 	}

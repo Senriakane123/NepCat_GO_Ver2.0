@@ -12,7 +12,7 @@ import (
 
 var MenuCommand = map[string]func(MSGModel.ResMessage){}
 
-func Init() {
+func MenuInit() {
 	MenuCommand = map[string]func(MSGModel.ResMessage){
 		"菜单": func(msg MSGModel.ResMessage) {
 			reply := Handle.MenuReplyMsgBuild(strconv.Itoa(int(msg.SelfID)))
@@ -56,10 +56,20 @@ func MessageRrocess(message MSGModel.ResMessage) {
 		case "全回复":
 			//处理群管理消息
 			if len(QQNumberList) != 0 {
-				isreply := Handle.GroupManage(message)
-				if isreply == true {
-					break
+
+				for _, n := range GroupKeyWord {
+					if strings.Contains(message.RawMessage, n) {
+						Handle.GroupManage(message)
+					}
 				}
+
+				for _, n := range PicKeyWord {
+					if strings.Contains(message.RawMessage, n) {
+						//Handle.GroupManage(message)
+						Handle.RandomPicManage(message)
+					}
+				}
+
 			}
 
 			//判断是否包含@机器请求的两种情况
