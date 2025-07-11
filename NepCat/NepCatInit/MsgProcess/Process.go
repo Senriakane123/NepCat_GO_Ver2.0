@@ -3,6 +3,7 @@ package MsgProcess
 import (
 	ConfigManage "NepCat_GO/ConfigModule"
 	"NepCat_GO/NepCatInit/MSGModel"
+	"NepCat_GO/NepCatInit/MsgProcess/Handle"
 	"NepCat_GO/Tool"
 	"fmt"
 	"strconv"
@@ -26,29 +27,43 @@ func MessageRrocess(message MSGModel.ResMessage) {
 
 		switch ConfigManage.GetWebConfig().Mode.ReplyMode {
 		case "全回复":
+			//处理群管理消息
+			if len(QQNumberList) != 0 {
+				isreply := Handle.GroupManage(message)
+				if isreply == true {
+					break
+				}
+			}
+
 			//判断是否包含@机器请求的两种情况
 			if BContainBotQQ {
 				//切换内存回复模式
-				if ChangeReplayMode(message.RawMessage) {
-					ReplyNormalGroupMsg(message, "切换回复模式成功")
+				if strings.Contains(message.RawMessage, "切换回复模式") {
+					Handle.ChangeReplayMode(message.RawMessage)
+					Handle.ReplyNormalGroupMsg(message, "切换回复模式成功")
 					break
 				}
 				//判断是否包含菜单请求
 				if strings.Contains(message.RawMessage, "菜单") {
-					ReplyNormalGroupMsg(message, MenuReplyMsgBuild(strconv.Itoa(int(message.SelfID))))
+					Handle.ReplyNormalGroupMsg(message, Handle.MenuReplyMsgBuild(strconv.Itoa(int(message.SelfID))))
+					break
 				}
 				//获取服务器状态
 				if strings.Contains(message.RawMessage, "服务器状态") {
-					ReplyNormalGroupMsg(message, ServerStatusBuild(strconv.Itoa(int(message.SelfID))))
+					Handle.ReplyNormalGroupMsg(message, Handle.ServerStatusBuild(strconv.Itoa(int(message.SelfID))))
+					break
 				}
 
-				if strings.Contains(message.RawMessage, "随机涩图") {
-					ReplyNormalGroupMsg(message, PicReplyMsgBuild(strconv.Itoa(int(message.SelfID))))
+				if strings.Contains(message.RawMessage, "涩图管理") {
+					Handle.ReplyNormalGroupMsg(message, Handle.PicReplyMsgBuild(strconv.Itoa(int(message.SelfID))))
+					break
 				}
 
 				if strings.Contains(message.RawMessage, "群管理") {
-					ReplyNormalGroupMsg(message, GroupManageReplyMsgBuild(strconv.Itoa(int(message.SelfID))))
+					Handle.ReplyNormalGroupMsg(message, Handle.GroupManageReplyMsgBuild(strconv.Itoa(int(message.SelfID))))
+					break
 				}
+
 			} else {
 
 			}

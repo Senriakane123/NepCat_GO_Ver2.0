@@ -1,7 +1,9 @@
 package Tool
 
 import (
+	"fmt"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -34,4 +36,17 @@ func BuildReplyMessage(Message []string) string {
 	}
 
 	return builder.String()
+}
+
+func StringToInt(s string) (int, error) {
+	i, err := strconv.Atoi(s)
+	if err != nil {
+		return 0, fmt.Errorf("无法转换字符串 '%s' 为整数: %v", s, err)
+	}
+	return i, nil
+}
+
+// int 转字符串
+func IntToString(i int) string {
+	return strconv.Itoa(i)
 }
