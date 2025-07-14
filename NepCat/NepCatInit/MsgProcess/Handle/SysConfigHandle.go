@@ -11,8 +11,8 @@ func ChangeReplayMode(rawmsg string) bool {
 	//}
 
 	allowedModes := map[string]bool{
-		"全回复":     true,
-		"部分回复":   true,
+		"全回复":   true,
+		"部分回复":  true,
 		"管理员回复": true,
 		"开发者回复": true,
 	}
