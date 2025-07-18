@@ -6,15 +6,14 @@ import (
 	"fmt"
 	"net"
 	"sync"
-	"unsafe"
 )
 
 type Server struct {
-	ServiceID     int64    `json:"service_id"`
-	Conn          net.Conn `json:"conn"`
-	ServerType    string   `json:"server_type"`
-	MsgSnCodeList []int    `json:"msg_sn_code_list"`
-	RemoteAddr    string   `json:"remote_addr"`
+	ServiceID     int64    `json:"service_id"`       //客户端注册服务唯一ID
+	Conn          net.Conn `json:"conn"`             //客户端连接
+	ServerType    string   `json:"server_type"`      //客户端自己提供的服务类型
+	MsgSnCodeList []int    `json:"msg_sn_code_list"` //存储客户端发送消息的SN码用于后续消息返回进行客户端回复匹配
+	RemoteAddr    string   `json:"remote_addr"`      //连接客户端远端IP
 }
 
 var Init_Server Service_Init
@@ -151,69 +150,6 @@ func (obj *VRTSProxyRPCHeader) Parse(buf []byte) int32 {
 		return -1
 	}
 	retVal += 4
-
-	return retVal
-}
-
-type VRTSProxyRegService struct {
-	serviceType int32
-	name        string
-}
-
-func (obj *VRTSProxyRegService) size() int32 {
-	return int32(4*2 + len(obj.name))
-}
-
-func (obj *VRTSProxyRegService) Package(buf *bytes.Buffer) int {
-	size := 8 + len(obj.name)
-	err := binary.Write(buf, binary.BigEndian, obj.serviceType)
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-	//binary.Write(buf, binary.BigEndian, obj.serviceType)
-	err = binary.Write(buf, binary.BigEndian, int32(len(obj.name)))
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-	err = binary.Write(buf, binary.BigEndian, []byte(obj.name))
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-	return size
-
-}
-
-func (obj *VRTSProxyRegService) Parse(buf []byte) int32 {
-	var retVal int32
-	bufio := bytes.NewReader(buf)
-
-	var nameLen int32
-	retVal = 0
-
-	// 解析 serviceType
-	if err := binary.Read(bufio, binary.BigEndian, &obj.serviceType); err != nil {
-		fmt.Println("Parse serviceType failed:", err)
-		return -1
-	}
-	retVal += int32(unsafe.Sizeof(obj.serviceType))
-
-	// 解析 name 的长度
-	if err := binary.Read(bufio, binary.BigEndian, &nameLen); err != nil {
-		fmt.Println("Parse name length failed:", err)
-		return -1
-	}
-	retVal += int32(unsafe.Sizeof(nameLen))
-
-	// 读取 name 本体
-	if nameLen > 0 {
-		temp := make([]byte, nameLen)
-		if err := binary.Read(bufio, binary.BigEndian, temp); err != nil {
-			fmt.Println("Parse name failed:", err)
-			return -1
-		}
-		obj.name = string(temp)
-		retVal += nameLen
-	}
 
 	return retVal
 }

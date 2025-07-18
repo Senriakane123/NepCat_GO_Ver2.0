@@ -105,19 +105,60 @@ func (obj *Server) ReplyHeartbeat(header VRTSProxyProtocolHeader) {
 	fmt.Println("已回复心跳")
 }
 
-func (obj *Server) HandleCall(rcvBuf []byte, len int, header VRTSProxyProtocolHeader) {
-
+func (obj *Server) HandleCall(rcvBuf []byte, Len int, header VRTSProxyProtocolHeader) {
 	var rpcHeader VRTSProxyRPCHeader
 	retVal := rpcHeader.Parse(rcvBuf[header.Size():])
-	if retVal > 0 {
-		msgBody := string(rcvBuf[header.Size()+int(retVal) : len])
-		//obj.handle.DoCommand(rpcHeader.Method, msgBody)
-		fmt.Println(msgBody)
-	} else {
-		fmt.Println("Length:", len)
-		fmt.Println("PackageHeaderSize:", header.Size())
+	if retVal <= 0 {
 		fmt.Println("Receive invalid rpc call")
+		return
 	}
+
+	msgBody := rcvBuf[header.Size()+int(retVal) : Len]
+
+	// 遍历查找目标服务
+	var targetServer *Server
+	Init_Server.Services.Range(func(key, value interface{}) bool {
+		srv := value.(*Server)
+		if srv.ServerType == rpcHeader.ServerType {
+			targetServer = srv
+			return false // 找到就停止遍历
+		}
+		return true
+	})
+
+	if targetServer == nil {
+		fmt.Println("未找到匹配的服务类型:", rpcHeader.ServerType)
+		return
+	}
+
+	// 构建转发请求包
+	var forwardBuf bytes.Buffer
+	forwardHeader := VRTSProxyProtocolHeader{
+		version: 1,
+		msgType: Const.VRTS_COMMNAND_TYPE_CALL,
+		msgSn:   header.msgSn, // 可复用原始 SN
+		size:    int32(len(msgBody)) + rpcHeader.Size(),
+	}
+	forwardHeader.Package(&forwardBuf)
+	rpcHeader.Package(&forwardBuf)
+	forwardBuf.Write(msgBody)
+
+	// 发送给目标服务
+	_, err := targetServer.Conn.Write(forwardBuf.Bytes())
+	if err != nil {
+		fmt.Println("转发请求失败:", err)
+	}
+
+	// ✅ 等待目标客户端返回响应
+	response := make([]byte, 4096) // 你可根据预期消息大小自行调整
+	n, err := targetServer.Conn.Read(response)
+	if err != nil {
+		fmt.Println("读取目标客户端响应失败:", err)
+		return
+	}
+
+	fmt.Println("收到目标客户端响应:", string(response[:n]))
+	// 👇你可自行根据收到的响应内容转发回原始请求方
 }
 
 func (obj *Server) ResgisterServer(rcvBuf []byte, len int, header VRTSProxyProtocolHeader) {
