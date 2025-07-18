@@ -171,6 +171,7 @@ func (obj *Server) ResgisterServer(rcvBuf []byte, len int, header VRTSProxyProto
 		fmt.Println("Receive invalid rpc call")
 	}
 	obj.ServerType = rpcHeader.ServerType
+	fmt.Println("注册服务成功:", rpcHeader.ServerType, "注册address：", obj.Conn.RemoteAddr())
 
 	var respHeader VRTSProxyProtocolHeader
 	var respRpcHeader VRTSProxyRPCHeader
@@ -196,5 +197,7 @@ func (obj *Server) ResgisterServer(rcvBuf []byte, len int, header VRTSProxyProto
 	_, err := obj.Conn.Write(respBuf.Bytes())
 	if err != nil {
 		fmt.Println("注册响应发送失败:", err)
+	} else {
+		fmt.Println("注册响应发送成功")
 	}
 }

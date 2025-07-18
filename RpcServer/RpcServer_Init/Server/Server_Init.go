@@ -29,6 +29,8 @@ func (obj *Service_Init) RpcServer_Init(addr string) error {
 		if err != nil {
 			fmt.Printf("RPC server: accept error: %v\n", err)
 			continue
+		} else {
+			fmt.Printf("RPC server: accepted connection from %s\n", conn.RemoteAddr().String())
 		}
 		var NewServer = &Server{
 			ServiceID:  int64(Init_Server_Num),

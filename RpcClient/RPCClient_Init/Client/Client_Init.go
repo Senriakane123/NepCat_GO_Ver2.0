@@ -35,6 +35,9 @@ func (obj *Cient_Init) RpcClient_Init(addr string, servertypr string) error {
 	if err != nil {
 		fmt.Println("注册rpc服务失败：", err.Error())
 	}
+	// 注册成功后开启 goroutine 持续监听服务端消息
+	go NewClient.ListenAndHandleServerMessages()
+
 	return err
 
 }

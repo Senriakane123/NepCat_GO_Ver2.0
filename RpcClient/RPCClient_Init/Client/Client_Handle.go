@@ -71,3 +71,48 @@ func (obj *CLient) RpcServer_Register(serverType string) error {
 	obj.ServiceID = int64(respRpcHeader.Service)
 	return nil
 }
+
+func (obj *CLient) ListenAndHandleServerMessages() {
+	buf := make([]byte, 4096)
+
+	for {
+		n, err := obj.Conn.Read(buf)
+		if err != nil {
+			fmt.Printf("接收消息错误: %v\n", err)
+			break
+		}
+
+		if n == 0 {
+			fmt.Println("服务端关闭连接")
+			break
+		}
+
+		// 解析协议头
+		var header VRTSProxyProtocolHeader
+		offset := header.Parse(buf[:n])
+		if offset <= 0 {
+			fmt.Println("解析协议头失败")
+			continue
+		}
+
+		// 解析 RPC 头
+		var rpcHeader VRTSProxyRPCHeader
+		ret := rpcHeader.Parse(buf[offset:n])
+		if ret <= 0 {
+			fmt.Println("解析RPC头失败")
+			continue
+		}
+
+		// 处理消息体（如果有）
+		bodyStart := offset + int(ret)
+		var msgBody string
+		if bodyStart < n {
+			msgBody = string(buf[bodyStart:n])
+		}
+
+		// 调用你自定义的处理逻辑
+		fmt.Printf("收到服务端消息: Method=%d ServerType=%s Msg=%s\n", rpcHeader.Method, rpcHeader.ServerType, msgBody)
+
+		// 可以根据 Method 做不同处理，如回调函数、命令派发等
+	}
+}
