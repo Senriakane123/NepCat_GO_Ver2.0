@@ -174,4 +174,29 @@ func (obj *Server) ResgisterServer(rcvBuf []byte, len int, header VRTSProxyProto
 		fmt.Println("Receive invalid rpc call")
 	}
 	obj.ServerType = rpcHeader.ServerType
+
+	var respHeader VRTSProxyProtocolHeader
+	var respRpcHeader VRTSProxyRPCHeader
+
+	respHeader.version = 1
+	respHeader.msgType = Const.VRTS_COMMAND_RESP_MASK // 假设常量定义为 ACK 类型
+	respHeader.msgSn = header.msgSn                   // 保持 SN 一致
+
+	respRpcHeader.Method = 0
+	respRpcHeader.ServerType = obj.ServerType
+	respRpcHeader.Host = ""
+	respRpcHeader.Caller = 0
+	respRpcHeader.Service = int32(obj.ServiceID) // 将 ServerID 填进响应里
+	respRpcHeader.BodySize = 0                   // 无消息体
+
+	respHeader.size = respRpcHeader.Size()
+
+	var respBuf bytes.Buffer
+	respHeader.Package(&respBuf)
+	respRpcHeader.Package(&respBuf)
+
+	_, err := obj.Conn.Write(respBuf.Bytes())
+	if err != nil {
+		fmt.Println("注册响应发送失败:", err)
+	}
 }
