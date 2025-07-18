@@ -35,6 +35,8 @@ func (obj *Service_Init) RpcServer_Init(addr string) error {
 			Conn:       conn,
 			RemoteAddr: conn.RemoteAddr().String(),
 		}
+
+		Init_Server_Num++
 		obj.Services.Store(conn.RemoteAddr(), NewServer)
 		go NewServer.HandleConnection()
 	}

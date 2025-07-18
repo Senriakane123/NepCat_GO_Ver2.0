@@ -53,24 +53,23 @@ func (obj *Server) HandleConnection() {
 func (obj *Server) ReceivceMsg() ([]byte, error, int) {
 	var header VRTSProxyProtocolHeader
 	offset := 0
-	rcv_size := header.Size()
-	var msg []byte
+	rcv_size := header.Size() // 通常为 16
 	var err error
-	len := 0
+	var n int
 	rcv_header := false
 
+	msg := make([]byte, 4096) // ⭐ 初始化避免 panic，可按需扩大
+
 	for {
-
-		len, err = obj.Conn.Read(msg[offset:rcv_size])
+		n, err = obj.Conn.Read(msg[offset:rcv_size])
 		if err != nil {
-			fmt.Println(err.Error())
+			fmt.Println("接收失败:", err)
 			break
 		}
-
-		if len < 0 {
+		if n <= 0 {
 			break
 		}
-		offset += len
+		offset += n
 
 		if offset < header.Size() {
 			continue
@@ -82,18 +81,16 @@ func (obj *Server) ReceivceMsg() ([]byte, error, int) {
 		}
 
 		rcv_size = int(header.size) + header.Size()
-
-		// 如果数据包接收完成
-		if (header.Size() + int(header.size)) <= offset {
+		if offset >= rcv_size {
 			break
 		}
-
-	}
-	if len >= 0 {
-		return msg, err, offset
 	}
 
-	return msg, err, 0
+	if n > 0 {
+		return msg[:rcv_size], nil, rcv_size // 🔒 截取实际消息长度
+	}
+
+	return nil, err, 0
 }
 
 func (obj *Server) ReplyHeartbeat(header VRTSProxyProtocolHeader) {
