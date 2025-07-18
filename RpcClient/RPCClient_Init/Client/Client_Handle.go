@@ -52,13 +52,13 @@ func (obj *CLient) RpcServer_Register(serverType string) error {
 	// 解析响应头和RPC头
 	var respHeader VRTSProxyProtocolHeader
 	offset := respHeader.Parse(resp)
-	if offset <= 0 {
+	if offset < 0 {
 		return fmt.Errorf("解析响应协议头失败")
 	}
 
 	var respRpcHeader VRTSProxyRPCHeader
-	ret := respRpcHeader.Parse(resp[offset:])
-	if ret <= 0 {
+	ret := respRpcHeader.Parse(resp[respHeader.Size():])
+	if ret < 0 {
 		return fmt.Errorf("解析响应RPC头失败")
 	}
 
@@ -66,6 +66,8 @@ func (obj *CLient) RpcServer_Register(serverType string) error {
 		return fmt.Errorf("SN 不匹配，期待: %d, 实际: %d", header.msgSn, respHeader.msgSn)
 	}
 
+	fmt.Println(respHeader, respRpcHeader)
 	fmt.Println("注册成功，收到 ServerID:", respRpcHeader.Service)
+	obj.ServiceID = int64(respRpcHeader.Service)
 	return nil
 }

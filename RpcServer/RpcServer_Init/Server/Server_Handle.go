@@ -189,6 +189,7 @@ func (obj *Server) ResgisterServer(rcvBuf []byte, len int, header VRTSProxyProto
 	respHeader.size = respRpcHeader.Size()
 
 	var respBuf bytes.Buffer
+	fmt.Println(respHeader, respRpcHeader)
 	respHeader.Package(&respBuf)
 	respRpcHeader.Package(&respBuf)
 
