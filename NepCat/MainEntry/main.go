@@ -8,6 +8,8 @@ import (
 	"NepCat_GO/NepCatInit/Nepcat_ws_init"
 	db "github.com/gopublic/GormModule/DBControl/DatabaseControl"
 	"github.com/jander/golog/logger"
+	RPC "github.com/rpcclient/RPCClient_Init/Client"
+	"github.com/rpcclient/RPCClient_Init/Const"
 	"sync"
 )
 
@@ -32,6 +34,10 @@ func main() {
 		return
 	}
 
+	logger.Info("------------------------------------------------------------------------RPC初始化------------------------------------------------------------------------")
+	RPC.RpcClientMapInit()
+	go RPC.Init_Client.RpcClient_Init("127.0.0.1:8080", Const.VRTS_SERVER_TYPE_NEPCAT)
+
 	logger.Info("------------------------------------------------------------------------Nepcat的api接口初始化------------------------------------------------------------------------")
 	MsgProcess.MenuInit()
 	NepCatInit.InitAllApis()
@@ -47,6 +53,6 @@ func main() {
 
 	// 阻塞主线程
 	var wg sync.WaitGroup
-	wg.Add(1)
+	wg.Add(2)
 	wg.Wait()
 }

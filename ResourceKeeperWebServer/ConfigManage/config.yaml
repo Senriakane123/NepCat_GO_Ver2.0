@@ -1,0 +1,18 @@
+database:
+  db_type: "mysql"
+  db_address: "192.168.8.20"
+  db_name: "vrtscdp"
+  db_user: "root"
+  db_password: "123456"
+  port: 3306
+
+logging:
+  log_level: "info"
+  log_dir: "/var/log/myapp"
+
+server:
+  http_enabled: true
+  http_port: 8443
+  https_enabled: true
+  https_port: 8000
+  rpcserver: 192.168.8.20:50000

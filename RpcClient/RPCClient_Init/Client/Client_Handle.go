@@ -1,10 +1,10 @@
 package Client
 
 import (
-	"RpcClient/RPCClient_Init/Const"
-	"RpcClient/Tool"
 	"bytes"
 	"fmt"
+	"github.com/rpcclient/RPCClient_Init/Const"
+	"github.com/rpcclient/Tool"
 )
 
 func (obj *CLient) RpcServer_Register(serverType string) error {

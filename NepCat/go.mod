@@ -3,6 +3,7 @@ module NepCat_GO
 go 1.24.0
 
 require github.com/gopublic v0.0.0
+require github.com/rpcclient v0.0.0
 
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
@@ -27,3 +28,4 @@ require (
 )
 
 replace github.com/gopublic => ../Common
+replace github.com/rpcclient => ../RpcClient
