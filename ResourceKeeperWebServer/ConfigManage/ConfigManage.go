@@ -2,9 +2,8 @@ package ConfigManage
 
 import (
 	"fmt"
-	"os"
-
 	"gopkg.in/yaml.v2"
+	"os"
 )
 
 type WebConfig struct {

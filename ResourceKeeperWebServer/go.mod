@@ -2,6 +2,10 @@ module ResourceKeeper
 
 go 1.24.0
 
+require github.com/gopublic v0.0.0
+
+require github.com/rpcclient v0.0.0
+
 require (
 	github.com/bytedance/sonic v1.13.3 // indirect
 	github.com/bytedance/sonic/loader v0.2.4 // indirect
@@ -30,5 +34,10 @@ require (
 	golang.org/x/sys v0.33.0 // indirect
 	golang.org/x/text v0.26.0 // indirect
 	google.golang.org/protobuf v1.36.6 // indirect
+	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+replace github.com/gopublic => ../Common
+
+replace github.com/rpcclient => ../RpcClient
