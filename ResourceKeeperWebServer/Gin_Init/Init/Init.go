@@ -3,12 +3,21 @@ package Init
 import (
 	"ResourceKeeper/ConfigManage"
 	"fmt"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
 func Gin_Init() {
 	fmt.Println("------------------------------------------------------------------------Gin初始化------------------------------------------------------------------------")
 	router := gin.Default()
+
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"https://yourdomain.com"},
+		AllowMethods:     []string{"GET", "POST"},
+		AllowHeaders:     []string{"Authorization", "Content-Type"},
+		AllowCredentials: true,
+	}))
+
 	RestfullInit(router)
 
 	// 配置 HTTP 或 HTTPS 服务
