@@ -2,12 +2,15 @@ package main
 
 import (
 	"ResourceKeeper/ConfigManage"
+	"ResourceKeeper/GO_Tyne_UI"
 	"fmt"
 	RPC "github.com/rpcclient/RPCClient_Init/Client"
 	"github.com/rpcclient/RPCClient_Init/Const"
 )
 
 func main() {
+	fmt.Println("------------------------------------------------------------------------项目ui启动------------------------------------------------------------------------")
+	GO_Tyne_UI.Tyne_UI_Init()
 	fmt.Println("------------------------------------------------------------------------Webconfig初始化------------------------------------------------------------------------")
 	err := ConfigManage.ConfigInit("ConfigManage/config.yaml") // 这里假设配置文件名为 config.yaml
 	if err != nil {
